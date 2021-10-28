@@ -37,9 +37,9 @@ void operatorControl() {
   int y 12.7;
   int l1 = 28.5;
   int l2 = 37.5;
-  int D= (x*x)+(y*y)-(l1*l1)-(l2*l2);
-  int O2= atan2(sqrt(1-D*D),D)
-  int O1= atan2(y,x)+atan2(l2*sin(O2),l1+l2*cos(O2));
+  int D;
+  int O2;
+  int O1;
 	int error;
 	int output;
 	int Kp=10 ;
@@ -50,46 +50,42 @@ void operatorControl() {
    int outputS;
    int Kp2=10 ;
    Encoder encoderS;
-     encoderS = encoderInit(QUAD_TOP_PORT2, QUAD_BOTTOM_PORT2, true);
-   while(y>)
-
-
-
-
-
-
-
-	while (1) {
-		if(joystickGetDigital(1, 6, JOY_UP)) {
-     	shoulderSet(127); // pressing up, so lift should go up
-   	}
-   	else if(joystickGetDigital(1, 6, JOY_DOWN)) {
-    	shoulderSet(-127); // pressing down, so lift should go down
-		}
-   	else {
-			shoulderSet(0); // no buttons are pressed, stop the lift
-   	}
-    if(joystickGetDigital(1, 7, JOY_UP)) {
-      encoderReset(encoder);
-   	}
-  		error = O2 - encoderGet(encoder);
-  		output = Kp * error;
-  		if(abs(output) < maxOut){
-    		elbowSet(output);
-  	}
-  	else{
-    	elbowSet(output/abs(output)*maxOut);
-    }
-    if(joystickGetDigital(1, 8, JOY_UP)) {
-      encoderReset(encoder2);
-      }
-      errorS = O1 - encoderGet(encoderS);
-      outputS = KpS * errorS;
-      if(abs(outputS) < maxOut){
-      shouderSet(outputS);
-    }
-    else{
-      ShoulderSet(outputS/abs(outputS)*maxOut);
-    }
-  }
+   encoderS = encoderInit(QUAD_TOP_PORT2, QUAD_BOTTOM_PORT2, true);
+   while(1){
+     if(joystickGetDigital(1, 7, JOY_DOWN) {
+       while(y>-11){
+         D= (x*x)+(y*y)-(l1*l1)-(l2*l2);
+         O2= atan2(sqrt(1-D*D),D);
+         O1= atan2(y,x)+atan2(l2*sin(O2),l1+l2*cos(O2));
+         error = O2 - encoderGet(encoder);
+         output = Kp * error;
+         errorS = O1 - encoderGet(encoderS);
+         outputS = KpS * errorS;
+         if(abs(outputS) < maxOut){
+           shouderSet(outputS);
+         }
+         else{
+           ShoulderSet(outputS/abs(outputS)*maxOut);
+         }
+         if(abs(output) < maxOut)
+         {
+           elbowSet(output);
+         }
+         else
+         {
+           elbowSet(output/abs(output)*maxOut);
+         }
+         y=y-2.54;
+       }
+     }
+     if(joystickGetDigital(1, 6, JOY_UP)) {
+       shoulderSet(127); // pressing up, so lift should go up
+     }
+     else if(joystickGetDigital(1, 6, JOY_DOWN)) {
+       shoulderSet(-127); // pressing down, so lift should go down
+     }
+     else {
+ 			shoulderSet(0); // no buttons are pressed, stop the lift
+     }
+   }
 }
