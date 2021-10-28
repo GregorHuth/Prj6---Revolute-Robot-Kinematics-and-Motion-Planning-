@@ -33,8 +33,8 @@
  //#include"shoulder.c"
 
 void operatorControl() {
-  int x = 40
-  int y 12.7;
+  int x = 40;
+  int y = 12.7;
   int l1 = 28.5;
   int l2 = 37.5;
   int D;
@@ -42,18 +42,21 @@ void operatorControl() {
   int O1;
 	int error;
 	int output;
-	int Kp=10 ;
+	int Kp=10;
   int maxOut=127;
 	Encoder encoder;
    encoder = encoderInit(QUAD_TOP_PORT, QUAD_BOTTOM_PORT, true);
    int errorS;
    int outputS;
-   int Kp2=10 ;
+   int KpS=10 ;
    Encoder encoderS;
    encoderS = encoderInit(QUAD_TOP_PORT2, QUAD_BOTTOM_PORT2, true);
-   while(1){
-     if(joystickGetDigital(1, 7, JOY_DOWN) {
-       while(y>-11){
+   while(1)
+   {
+     if(joystickGetDigital(1, 7, JOY_DOWN))
+     {
+       while(y>-11)
+       {
          D= (x*x)+(y*y)-(l1*l1)-(l2*l2);
          O2= atan2(sqrt(1-D*D),D);
          O1= atan2(y,x)+atan2(l2*sin(O2),l1+l2*cos(O2));
@@ -62,10 +65,10 @@ void operatorControl() {
          errorS = O1 - encoderGet(encoderS);
          outputS = KpS * errorS;
          if(abs(outputS) < maxOut){
-           shouderSet(outputS);
+           shoulderSet(outputS);
          }
          else{
-           ShoulderSet(outputS/abs(outputS)*maxOut);
+           shoulderSet(outputS/abs(outputS)*maxOut);
          }
          if(abs(output) < maxOut)
          {
@@ -86,6 +89,16 @@ void operatorControl() {
      }
      else {
  			shoulderSet(0); // no buttons are pressed, stop the lift
+     }
+     if(joystickGetDigital(1, 5, JOY_UP)) {
+       elbowSet(127); // pressing up, so lift should go up
+     }
+     else if(joystickGetDigital(1, 5, JOY_DOWN)) {
+       elbowSet(-127); // pressing down, so lift should go down
+     }
+     else
+     {
+      elbowSet(0); // no buttons are pressed, stop the lift
      }
    }
 }
