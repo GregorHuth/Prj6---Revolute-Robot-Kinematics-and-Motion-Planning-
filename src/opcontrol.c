@@ -53,8 +53,10 @@ void operatorControl() {
    encoderS = encoderInit(QUAD_TOP_PORT2, QUAD_BOTTOM_PORT2, true);
    while(1)
    {
-     if(joystickGetDigital(1, 7, JOY_DOWN))
+     if(joystickGetDigital(1, 7, JOY_UP))
      {
+       encoderReset(encoder);
+       encoderReset(encoderS);
        while(y>-11)
        {
          D= (x*x)+(y*y)-(l1*l1)-(l2*l2);
