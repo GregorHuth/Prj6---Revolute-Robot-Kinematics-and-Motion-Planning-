@@ -40,6 +40,7 @@ void operatorControl() {
   double D;
   double O2;
   double O1;
+  double target=40;
 	double error;
 	double output;
 	double Kp=10;
@@ -53,6 +54,17 @@ void operatorControl() {
    encoderS = encoderInit(QUAD_TOP_PORT2, QUAD_BOTTOM_PORT2, true);
    while(1)
    {
+     if(joystickGetDigital(1, 7, JOY_DOWN))
+     {
+         errorS = target - encoderGet(encoderS);
+         outputS = KpS * errorS;
+         if(abs(outputS) < maxOut){
+           shoulderSet(outputS);
+         }
+         else{
+           shoulderSet(outputS/abs(outputS)*maxOut);
+         }
+     }
      if(joystickGetDigital(1, 7, JOY_UP))
      {
        encoderReset(encoder);
