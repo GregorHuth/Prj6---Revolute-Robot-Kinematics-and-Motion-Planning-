@@ -28,6 +28,10 @@
 #define QUAD_TOP_PORT2 9
 #define QUAD_BOTTOM_PORT 7
 #define QUAD_TOP_PORT 6
+
+#define LIMIT_SWITCH 5
+#define LIMIT_SWITCH2 3
+
 #include <API.h>
 
 // Allow usage of this file in C++ programs
@@ -35,6 +39,7 @@
 extern "C" {
 #endif
 #include"elbow.h"
+#include"shoulder.h"
 
 // A function prototype looks exactly like its declaration, but with a semicolon instead of
 // actual code. If a function does not match a prototype, compile errors will occur.

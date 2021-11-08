@@ -30,6 +30,9 @@
  #include"elbow.h"
  #include"shoulder.h"
  #include"math.h"
+ #include"homeShoulder.h"
+ #include"homeElbow.h"
+
  //#include"shoulder.c"
 
 void operatorControl() {
@@ -40,6 +43,7 @@ void operatorControl() {
   double D;
   double O2;
   double O1;
+  double target=40;
 	double error;
 	double output;
 	double Kp=10;
@@ -51,8 +55,51 @@ void operatorControl() {
    double KpS=10 ;
    Encoder encoderS;
    encoderS = encoderInit(QUAD_TOP_PORT2, QUAD_BOTTOM_PORT2, true);
-   while(1)
-   {
+   double counts = encoderGet(encoder);
+   double countsS = encoderGet(encoderS);
+   while(1){
+     if(joystickGetDigital(1, 7, JOY_LEFT))
+     {
+       homeShoulder();
+       homeElbow();
+       encoderReset(encoder);
+       encoderReset(encoderS);
+
+            while(counts<85){
+              shoulderSet(-40);
+              counts = encoderGet(encoderS);
+              delay(20);
+             printf("moving to home position shoulder %f \n", countsS);
+            }
+            shoulderSet(0);
+            encoderReset(encoderS);
+            while(countsS<160 ){
+              elbowSet(40);
+              counts = encoderGet(encoder);
+              delay(20);
+              printf("moving to home position elbow %f \n", counts);
+            }
+            elbowSet(0);
+            delay(20);
+            encoderReset(encoder);
+            encoderReset(encoderS);
+
+            printf(" shoulder homed %f \n", counts);
+            printf("elbow homed %f \n", countsS);
+
+
+          }
+     if(joystickGetDigital(1, 7, JOY_DOWN))
+     {
+         errorS = target - encoderGet(encoderS);
+         outputS = KpS * errorS;
+         if(abs(outputS) < maxOut){
+           shoulderSet(outputS);
+         }
+         else{
+           shoulderSet(outputS/abs(outputS)*maxOut);
+         }
+     }
      if(joystickGetDigital(1, 7, JOY_UP))
      {
        encoderReset(encoder);
@@ -94,7 +141,7 @@ void operatorControl() {
           elbowSet(0);
           delay(2000);
          y=y-2.54;
-       }
+        }
        }
      }
      if(joystickGetDigital(1, 6, JOY_UP)) {
