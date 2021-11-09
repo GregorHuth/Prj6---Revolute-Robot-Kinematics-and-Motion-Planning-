@@ -40,6 +40,9 @@ extern "C" {
 #endif
 #include"elbow.h"
 #include"shoulder.h"
+#include "chassis.h"
+#include "claw.h"
+#include "open.h"
 
 // A function prototype looks exactly like its declaration, but with a semicolon instead of
 // actual code. If a function does not match a prototype, compile errors will occur.

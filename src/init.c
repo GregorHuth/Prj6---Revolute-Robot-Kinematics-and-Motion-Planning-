@@ -17,8 +17,12 @@
  * states (digitalWrite()) of limit switches, push buttons, and solenoids. It can also safely
  * configure a UART port (usartOpen()) but cannot set up an LCD (lcdInit()).
  */
-void initializeIO() {
-}
+ void initializeIO() {
+   pinMode(LIMIT_SWITCH , INPUT);
+ }
+ void initializeIO2() {
+   pinMode(LIMIT_SWITCH2 , INPUT);
+ }
 
 /*
  * Runs user initialization code. This function will be started in its own task with the default
