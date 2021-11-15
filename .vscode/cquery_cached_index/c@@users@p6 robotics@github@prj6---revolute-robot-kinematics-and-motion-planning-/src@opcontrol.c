@@ -32,6 +32,7 @@
  #include"math.h"
  #include"homeShoulder.h"
  #include"homeElbow.h"
+ #include"ultrasonicFollowing.h"
 
  //#include"shoulder.c"
 
@@ -162,6 +163,10 @@ void operatorControl() {
      else
      {
       elbowSet(0); // no buttons are pressed, stop the lift
+     }
+     if(joystickGetDigital(1, 7, JOY_RIGHT))
+     {
+        ultrasonicFollowing();
      }
    }
 }
