@@ -32,11 +32,16 @@
  #include"math.h"
  #include"homeShoulder.h"
  #include"homeElbow.h"
- #include"ultrasonicFollowing.h"
 
  //#include"shoulder.c"
 
 void operatorControl() {
+  double goal=75;
+  double distance;
+  int power;
+  int turn;
+  Ultrasonic dumbSonar;
+  dumbSonar = ultrasonicInit(1,2);
   double x = 30;
   double y = 12.7;
   double l1 = 28.5;
@@ -164,9 +169,60 @@ void operatorControl() {
      {
       elbowSet(0); // no buttons are pressed, stop the lift
      }
-     if(joystickGetDigital(1, 7, JOY_RIGHT))
+     while(joystickGetDigital(1, 7, JOY_RIGHT))
      {
-        ultrasonicFollowing();
+       int count=0;
+       double errorU;
+       double kpU=1;
+       double outputU;
+       distance = ultrasonicGet(dumbSonar);
+       errorU = goal - ultrasonicGet(dumbSonar);
+       outputU = kpU * errorU;
+       bool needTurn=false;
+       if( 0<ultrasonicGet(dumbSonar) && ultrasonicGet(dumbSonar)<100 ){
+         needTurn=false;
+       }
+       else{
+         needTurn=true;
+       }
+       if(needTurn){
+         while(count<50){
+           chassisSet(40,0);
+           delay(500*count);
+           chassisSet(0,0);
+           delay(1000);
+           if(0<ultrasonicGet(dumbSonar) && ultrasonicGet(dumbSonar)<100){
+             count=51;
+           }
+           else {
+             chassisSet(0,40);
+             delay(1000*count);
+              chassisSet(0,0);
+             if(0<ultrasonicGet(dumbSonar) && ultrasonicGet(dumbSonar)<100)
+             {
+               count=51;
+             }
+           }
+           count++;
+         }
+       }
+       else {
+         if(abs(outputU) < maxOut){
+           chassisSet(-1*outputU,(outputU));
+         }
+
+         else{
+           chassisSet(-1*(outputU/abs(outputU))*maxOut,outputU/abs(outputU)*maxOut);
+         }
+       }
+       delay(100);
+       printf("distance to object: %d \n", distance);
      }
+     chassisSet(0,0);
+     power = joystickGetAnalog(1, 1); // vertical axis on left joystick
+      turn = joystickGetAnalog(1, 2); // horizontal axis on left joystick
+  //    counts = encoderGet(encoder);
+    //  counts2 = encoderGet(encoder2);
+     chassisSet(0.5*(power + turn), 0.5*(power - turn));
    }
 }

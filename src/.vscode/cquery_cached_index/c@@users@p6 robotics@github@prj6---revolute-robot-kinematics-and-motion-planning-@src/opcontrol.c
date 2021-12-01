@@ -36,8 +36,8 @@
  //#include"shoulder.c"
 
 void operatorControl() {
-  double goal=75;
-  double distance;
+  int goal=75;
+  int distance;
   int power;
   int turn;
   Ultrasonic dumbSonar;
@@ -171,42 +171,19 @@ void operatorControl() {
      }
      if(joystickGetDigital(1, 7, JOY_RIGHT))
      {
-       int count=0;
-       double errorU;
-       double kpU=1;
-       double outputU;
        distance = ultrasonicGet(dumbSonar);
-       errorU = goal - ultrasonicGet(dumbSonar);
-       outputU = kpU * errorU;
-       bool needTurn=false;
-       if(0<distance<125){
-         needTurn=false;
+       if(distance>goal){
+         chassisSet(127,127);
+       }
+       else if(distance<goal){
+         chassisSet(-127,-127);
        }
        else{
-         needTurn=true;
+         chassisSet(0,0);
        }
-       if(needTurn){
-         if(count<50){
-           chassisSet(40,0);
-           count++;
-         }
-       }
-       else {
-         if(abs(outputU) < maxOut){
-           chassisSet(-1*outputU,(outputU));
-         }
-         else{
-           chassisSet(-1*(outputU/abs(outputU))*maxOut,outputU/abs(outputU)*maxOut);
-         }
-       }
-       else if(count<50){
-         chassisSet(40,0);
-         count++;
-       }
-       delay(100);
-       printf("distance to object: %d \n", distance);
+       delay(50);
+       printf("distance to object: %d", distance);
      }
-     chassisSet(0,0);
      power = joystickGetAnalog(1, 1); // vertical axis on left joystick
       turn = joystickGetAnalog(1, 2); // horizontal axis on left joystick
   //    counts = encoderGet(encoder);
