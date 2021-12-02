@@ -36,10 +36,13 @@
  //#include"shoulder.c"
 
 void operatorControl() {
-  double goal=75;
+  double goal=50;
   double distance;
   int power;
   int turn;
+  analogCalibrate(1);
+  analogCalibrate(2);
+  analogCalibrate(3);
   Ultrasonic dumbSonar;
   dumbSonar = ultrasonicInit(1,2);
   double x = 30;
@@ -190,17 +193,22 @@ void operatorControl() {
            chassisSet(40,0);
            delay(500*count);
            chassisSet(0,0);
-           delay(1000);
            if(0<ultrasonicGet(dumbSonar) && ultrasonicGet(dumbSonar)<100){
              count=51;
+             chassisSet(40,0);
+             delay(500);
+             chassisSet(0,0);
            }
            else {
-             chassisSet(0,40);
-             delay(1000*count);
+             chassisSet(-40,0);
+             delay(500*(count+1));
               chassisSet(0,0);
              if(0<ultrasonicGet(dumbSonar) && ultrasonicGet(dumbSonar)<100)
              {
                count=51;
+               chassisSet(-40,0);
+               delay(500);
+               chassisSet(0,0);
              }
            }
            count++;
@@ -217,6 +225,28 @@ void operatorControl() {
        }
        delay(100);
        printf("distance to object: %d \n", distance);
+     }
+     int Ll;
+     int Rr;
+     int Cc;
+     while(joystickGetDigital(1, 7, JOY_LEFT)){
+       Ll=analogReadCalibrated(1);
+       Rr=analogReadCalibrated(3);
+       Cc=analogReadCalibrated(2);
+       if(Cc < 1500){
+         chassisSet(100,100);
+       }
+       else if( Ll < 1500){
+         chassisSet(40,0);
+       }
+       else {
+         chassisSet(-40,0);
+       }
+       chassisSet(0,0);
+       delay(100);
+       printf("left value: %d \n", Ll);
+       printf("center value: %d \n", Cc);
+       printf("right value: %d \n", Rr);
      }
      chassisSet(0,0);
      power = joystickGetAnalog(1, 1); // vertical axis on left joystick
