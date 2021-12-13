@@ -32,14 +32,22 @@
  #include"math.h"
  #include"homeShoulder.h"
  #include"homeElbow.h"
+ #include "position.h"
+ #include"claw.h"
+ #include"open.h"
+
 
  //#include"shoulder.c"
 
 void operatorControl() {
-  double goal=75;
+  double goal=50;
   double distance;
   int power;
   int turn;
+
+  analogCalibrate(1);
+  analogCalibrate(2);
+  analogCalibrate(3);
   Ultrasonic dumbSonar;
   dumbSonar = ultrasonicInit(1,2);
   double x = 30;
@@ -169,7 +177,7 @@ void operatorControl() {
      {
       elbowSet(0); // no buttons are pressed, stop the lift
      }
-     if(joystickGetDigital(1, 7, JOY_RIGHT))
+     while(joystickGetDigital(1, 7, JOY_RIGHT))
      {
        int count=0;
        double errorU;
@@ -179,15 +187,35 @@ void operatorControl() {
        errorU = goal - ultrasonicGet(dumbSonar);
        outputU = kpU * errorU;
        bool needTurn=false;
-       if(0<distance<125){
+       if( 0<ultrasonicGet(dumbSonar) && ultrasonicGet(dumbSonar)<100 ){
          needTurn=false;
        }
        else{
          needTurn=true;
        }
        if(needTurn){
-         if(count<50){
+         while(count<50){
            chassisSet(40,0);
+           delay(500*count);
+           chassisSet(0,0);
+           if(0<ultrasonicGet(dumbSonar) && ultrasonicGet(dumbSonar)<100){
+             count=51;
+             chassisSet(40,0);
+             delay(500);
+             chassisSet(0,0);
+           }
+           else {
+             chassisSet(-40,0);
+             delay(500*(count+1));
+              chassisSet(0,0);
+             if(0<ultrasonicGet(dumbSonar) && ultrasonicGet(dumbSonar)<100)
+             {
+               count=51;
+               chassisSet(-40,0);
+               delay(500);
+               chassisSet(0,0);
+             }
+           }
            count++;
          }
        }
@@ -195,18 +223,108 @@ void operatorControl() {
          if(abs(outputU) < maxOut){
            chassisSet(-1*outputU,(outputU));
          }
+
          else{
            chassisSet(-1*(outputU/abs(outputU))*maxOut,outputU/abs(outputU)*maxOut);
          }
        }
-       else if(count<50){
-         chassisSet(40,0);
-         count++;
-       }
        delay(100);
        printf("distance to object: %d \n", distance);
      }
+     int Ll;
+     int Rr;
+     int Cc;
+     while(joystickGetDigital(1, 8, JOY_LEFT)){
+
+       Ll=analogReadCalibrated(1);
+       Rr=analogReadCalibrated(3);
+       Cc=analogReadCalibrated(2);
+       if(Cc<300&&Rr<300&&Ll<300){
+         chassisSet(-40,-40);
+       }
+       else{
+       if(Cc > Ll && Cc > Rr){
+         chassisSet(20,-20 );
+       }
+       else if( Ll < Rr){
+         chassisSet(35,35);
+       }
+       else if(Rr < Ll){
+         chassisSet(-35,-35);
+       }
+      }
+    }
+    chassisSet(0,0);
+    if (joystickGetDigital(1,8,JOY_RIGHT)) {
+      double l1 = 10.5;
+      double l2 = 13.6;
+      double x1 = l1+l2-1;
+      double y1 = -2; //-1-1
+      double a2;
+      double a1;
+      bool b1;
+      bool b2;
+      int error;
+      int error2;
+      for(int x = x1-1; x >= (x1-10); x--) { // 10 in
+        b1= true;
+        b2= true;
+        a2 = position1(x,y1,l1,l2);
+        a1 = position2(a2,x,y1,l1,l2);
+        a2 -= a1;
+        a1 *= (180/M_PI);
+        a2 *= -(180/M_PI);
+        while(b1 || b2) {
+          error = (int) round((0.6*encoderGet(encoderS) - a1));
+          error2 = (int) round((0.5*encoderGet(encoder) - a2));
+            if((error < 42) && (error > -42) && b1) {
+              motorSet(5,error*12);
+                 if((-3 < error) && (error < 3)) {
+              b1= false;
+            }
+          } else if(error >= 42 && b1) {
+            motorSet(5,127);
+          } else if(error <= -42 && b1) {
+            motorSet(5,-127);
+          } else {
+            motorSet(5,0);
+          }
+
+          if((error2 < 42) && (error2 > -42) && b2) {
+            motorSet(6,error2*12);
+            if((-3 < error2) && (error2 < 3)) {
+              b2 = false;
+            }
+          } else if(error2 >= 42 && b2) {
+            motorSet(6,127);
+          } else if(error2 <= -42 && b2) {
+            motorSet(6,-127);
+          } else {
+            motorSet(6,0);
+          }
+          }
+        }
+      }
+
      chassisSet(0,0);
+     if(joystickGetDigital(1, 8, JOY_UP)) {
+       clawSet(127); // pressing up, so lift should go up
+     }
+     else if(joystickGetDigital(1, 8, JOY_DOWN)) {
+       clawSet(-127); // pressing down, so lift should go down
+     }
+     else {
+       clawSet(0); // pressing down, so lift should go down
+     }
+       if(joystickGetDigital(1, 3, JOY_UP)) {
+         openSet(127); // pressing up, so lift should go up
+       }
+       else if(joystickGetDigital(1, 3, JOY_DOWN)) {
+         openSet(-127); // pressing down, so lift should go down
+       }
+       else {
+       openSet(0); // no buttons are pressed, stop the lift
+     }
      power = joystickGetAnalog(1, 1); // vertical axis on left joystick
       turn = joystickGetAnalog(1, 2); // horizontal axis on left joystick
   //    counts = encoderGet(encoder);

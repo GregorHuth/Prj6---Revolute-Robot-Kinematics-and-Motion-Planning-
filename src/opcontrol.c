@@ -32,6 +32,10 @@
  #include"math.h"
  #include"homeShoulder.h"
  #include"homeElbow.h"
+ #include "position.h"
+ #include"claw.h"
+ #include"open.h"
+
 
  //#include"shoulder.c"
 
@@ -40,6 +44,7 @@ void operatorControl() {
   double distance;
   int power;
   int turn;
+
   analogCalibrate(1);
   analogCalibrate(2);
   analogCalibrate(3);
@@ -229,26 +234,97 @@ void operatorControl() {
      int Ll;
      int Rr;
      int Cc;
-     while(joystickGetDigital(1, 7, JOY_LEFT)){
+     while(joystickGetDigital(1, 8, JOY_LEFT)){
+
        Ll=analogReadCalibrated(1);
        Rr=analogReadCalibrated(3);
        Cc=analogReadCalibrated(2);
-       if(Cc < 1500){
-         chassisSet(100,100);
+       if(Cc<300&&Rr<300&&Ll<300){
+         chassisSet(-40,-40);
        }
-       else if( Ll < 1500){
-         chassisSet(40,0);
+       else{
+       if(Cc > Ll && Cc > Rr){
+         chassisSet(20,-20 );
+       }
+       else if( Ll < Rr){
+         chassisSet(35,35);
+       }
+       else if(Rr < Ll){
+         chassisSet(-35,-35);
+       }
+      }
+    }
+    chassisSet(0,0);
+    if (joystickGetDigital(1,8,JOY_RIGHT)) {
+      double l1 = 10.5;
+      double l2 = 13.6;
+      double x1 = l1+l2-1;
+      double y1 = -2; //-1-1
+      double a2;
+      double a1;
+      bool b1;
+      bool b2;
+      int error;
+      int error2;
+      for(int x = x1-1; x >= (x1-10); x--) { // 10 in
+        b1= true;
+        b2= true;
+        a2 = position1(x,y1,l1,l2);
+        a1 = position2(a2,x,y1,l1,l2);
+        a2 -= a1;
+        a1 *= (180/M_PI);
+        a2 *= -(180/M_PI);
+        while(b1 || b2) {
+          error = (int) round((0.6*encoderGet(encoderS) - a1));
+          error2 = (int) round((0.5*encoderGet(encoder) - a2));
+            if((error < 42) && (error > -42) && b1) {
+              motorSet(5,error*12);
+                 if((-3 < error) && (error < 3)) {
+              b1= false;
+            }
+          } else if(error >= 42 && b1) {
+            motorSet(5,127);
+          } else if(error <= -42 && b1) {
+            motorSet(5,-127);
+          } else {
+            motorSet(5,0);
+          }
+
+          if((error2 < 42) && (error2 > -42) && b2) {
+            motorSet(6,error2*12);
+            if((-3 < error2) && (error2 < 3)) {
+              b2 = false;
+            }
+          } else if(error2 >= 42 && b2) {
+            motorSet(6,127);
+          } else if(error2 <= -42 && b2) {
+            motorSet(6,-127);
+          } else {
+            motorSet(6,0);
+          }
+          }
+        }
+      }
+
+     chassisSet(0,0);
+     if(joystickGetDigital(1, 8, JOY_UP)) {
+       clawSet(127); // pressing up, so lift should go up
+     }
+     else if(joystickGetDigital(1, 8, JOY_DOWN)) {
+       clawSet(-127); // pressing down, so lift should go down
+     }
+     else {
+       clawSet(0); // pressing down, so lift should go down
+     }
+       if(joystickGetDigital(1, 3, JOY_UP)) {
+         openSet(127); // pressing up, so lift should go up
+       }
+       else if(joystickGetDigital(1, 3, JOY_DOWN)) {
+         openSet(-127); // pressing down, so lift should go down
        }
        else {
-         chassisSet(-40,0);
-       }
-       chassisSet(0,0);
-       delay(100);
-       printf("left value: %d \n", Ll);
-       printf("center value: %d \n", Cc);
-       printf("right value: %d \n", Rr);
+       openSet(0); // no buttons are pressed, stop the lift
      }
-     chassisSet(0,0);
      power = joystickGetAnalog(1, 1); // vertical axis on left joystick
       turn = joystickGetAnalog(1, 2); // horizontal axis on left joystick
   //    counts = encoderGet(encoder);
